@@ -16,11 +16,11 @@ import SearchIcon from "@mui/icons-material//Search";
 import Button from '@mui/material/Button';
 import LaunchIcon from '@mui/icons-material/Launch';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
 import Box from '@mui/material/Box';
 import OutlinedInput from '@mui/material/OutlinedInput';
-
+import RectangleTwoToneIcon from '@mui/icons-material/RectangleTwoTone';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,6 +44,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function createData(
+  id:number,
   storageAccount: string,
   version: string,
   accountKey: string,
@@ -55,25 +56,24 @@ function createData(
 }
 
 const rows = [
-  createData('01_alpha_', 'Vault v2', "(multiple)", 0, 0.00),
-  createData('AccNov16', 'Vault v2', "", 2, 3.54),
-  createData('account002', 'Vault v2',"", 1, 0.00),
-  createData('AccountLuke_356', 'Vault v2', "", 0, 0.00),
-  createData('apptest', 'Vault v2', "", 1, 0.00),
-  createData('Customertest', 'Vault v2', "(multiple)", 1, 1.02),
+  createData(1,'01_alpha_', 'Vault v2', "(multiple)", 0, 0.00),
+  createData(2,'AccNov16', 'Vault v2', "", 2, 3.54),
+  createData(3,'account002', 'Vault v2',"", 1, 0.00),
+  createData(4,'AccountLuke_356', 'Vault v2', "", 0, 0.00),
+  createData(5,'apptest', 'Vault v1', "", 1, 0.00),
+  createData(6,'Customertest', 'Vault v2', "(multiple)", 1, 1.02),
 ];
 
 
 export default function CustomizedTables() {
     
-    const [age, setAge] = React.useState('');
+    const [vault, setVault] = React.useState('');
     const [search,setSearch]=React.useState('');
     console.log(search);
 
-    const handleChange = (event: SelectChangeEvent) => {
-      setAge(event.target.value);
-    };
-
+       const handleVaultChange = (event) => {
+        setVault(event.target.value);
+       }
  
 
   return (
@@ -83,18 +83,18 @@ export default function CustomizedTables() {
    
  <Box sx={{ '& > :not(style)': { m: 1 } }}>
  <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="demo-simple-select-standard-label">Vault</InputLabel>
+ <InputLabel id="demo-simple-select-standard-label">Vault</InputLabel>
         <Select
           labelId="demo-simple-select-standard-label"
           id="demo-simple-select-standard"
-          //value="Vault"
-          //onChange={handleChange}
+          value={vault}
+          onChange={handleVaultChange}
         >
-          
-          <MenuItem value={10}>Vault</MenuItem>
+        <MenuItem value="v1">v1</MenuItem>
+        <MenuItem value="v2">v2</MenuItem>
         </Select>
       </FormControl>
-
+      
       <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined" >   
           <OutlinedInput
             id="outlined-adornment-search"          
@@ -107,6 +107,7 @@ export default function CustomizedTables() {
             }}
           />
         </FormControl>
+
       
 
         <Button variant="contained" endIcon={<LaunchIcon />}  style={{
@@ -151,20 +152,22 @@ export default function CustomizedTables() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <StyledTableRow key={row.storageAccount}>
+          {rows.filter((item)=>
+           search.toLowerCase()==''?item:item.storageAccount.toLowerCase().includes(search)).map((row) => (
+            <StyledTableRow key={row.id}>
               <StyledTableCell component="th" scope="row">
                 {row.storageAccount}
               </StyledTableCell>
               <StyledTableCell align="right">{row.version}</StyledTableCell>
-              <StyledTableCell align="right">{row.accountKey}</StyledTableCell>
+              <StyledTableCell align="right">{row.accountKey=="(multiple)"?row.accountKey:<RectangleTwoToneIcon style={{padding: "5px 15px" , width: "25px"}}/>}</StyledTableCell>
               <StyledTableCell align="right">{row.bucketCount}</StyledTableCell>
               <StyledTableCell align="right">{row.size}</StyledTableCell>
               <StyledTableCell align="right">
              <SellOutlinedIcon style={{paddingRight: '10px'}}/>
-              <SearchIcon style={{paddingRight: '10px'}} />&nbsp;
+              {row.bucketCount==0?<SearchIcon style={{paddingRight: '10px'}} color="disabled"/>:<SearchIcon style={{paddingRight: '10px'}} />}
+              &nbsp;
               <VpnKeyIcon style={{paddingRight: '10px'}} />&nbsp;
-              <DeleteTwoToneIcon />
+              {row.storageAccount!="AccountLuke_356"?<DeleteIcon color="disabled"/>:<DeleteIcon />}
               </StyledTableCell>
             </StyledTableRow>
           ))}
