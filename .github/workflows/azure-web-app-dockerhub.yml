@@ -1,0 +1,35 @@
+name: Build and deploy my docker image to an Azure Web App
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to Docker container registry
+        run: |
+          docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push container image to registry
+        run: |
+          docker build . -t irene22/cclapp-image:${{ github.sha }} -t irene22/cclapp-image:latest
+          docker push --all-tags irene22/cclapp-image
+
+      - uses: azure/webapps-deploy@v2
+        with:
+          app-name: "mycloudmanager"
+          images: "docker.io/irene22/cclapp-image:${{ github.sha }}"
+
+      - name: Azure logout
+        run: |
+          az logout
